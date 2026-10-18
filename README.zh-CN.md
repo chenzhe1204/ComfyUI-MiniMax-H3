@@ -9,7 +9,7 @@
 > Community License Agreement** 约束；该许可证的 Applicable Territory 排除
 > **欧盟、英国、韩国、美国**，同时包含商业使用、可接受使用和再分发条件。
 > 下载前请阅读官方许可证：
-> <https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE>。
+> <https://www.modelscope.cn/models/MiniMax/MiniMax-H3/file/view/master/LICENSE>。
 
 > **非官方项目**：与 MiniMax、ComfyUI、h3.c 作者无隶属、背书或赞助关系。
 
@@ -47,8 +47,7 @@
 
 ```sh
 cd /path/to/ComfyUI/custom_nodes
-git clone https://github.com/chenzhe1204/ComfyUI-MiniMax-H3.git comfyui-minimax-h3
-```
+git clone https://gitee.com/chenzhe1204/ComfyUI-MiniMax-H3.git```
 
 开发目录也可以软链：
 
@@ -64,7 +63,7 @@ cd /path/to/ComfyUI-MiniMax-H3
 本适配器不内置 h3.c。按固定 commit 构建到 `third_party/h3.c`：
 
 ```sh
-./scripts/bootstrap_h3.sh
+./scripts/bootstrap_h3_cn.sh
 ```
 
 需要 Xcode Command Line Tools、macOS SDK 和 `make`。如果已有 h3.c checkout，
@@ -79,7 +78,7 @@ cd /path/to/ComfyUI-MiniMax-H3
 先接受官方许可证，再按官方命令下载：
 
 ```sh
-hf download MiniMaxAI/MiniMax-H3 \
+modelscope download MiniMaxAI/MiniMax-H3 \
   --include "model_index.json" "FL2VA/*" "Ref2VA/*" \
   --local-dir /path/to/MiniMax-H3
 ```
