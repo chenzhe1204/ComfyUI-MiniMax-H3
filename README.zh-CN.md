@@ -47,7 +47,8 @@
 
 ```sh
 cd /path/to/ComfyUI/custom_nodes
-git clone https://gitee.com/chenzhe1204/ComfyUI-MiniMax-H3.git```
+git clone https://gitee.com/chenzhe1204/ComfyUI-MiniMax-H3.git
+```
 
 开发目录也可以软链：
 
