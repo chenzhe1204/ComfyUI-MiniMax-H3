@@ -1,0 +1,5 @@
+# Files excluded from the ComfyUI Registry package.
+.github/
+.idea/
+tests/
+.gitignore

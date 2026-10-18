@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+.pytest_cache/
+.ruff_cache/
+.tools/
+
+# Local configuration and generated outputs
+config.json
+tests/output/
+tests/comfy_output/
+outputs/
+
+# Native backend and weights (never commit these)
+third_party/h3.c/
+MiniMax-H3/
+model/
+h3.c/h3
+h3.c/*.o
+h3.c/*.d
+h3.c/libh3.a
+
+# Build artifacts
+*.metallib
+*.air
+.build/
+dist/
+build/
+*.egg-info/

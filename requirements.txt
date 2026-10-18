@@ -1,0 +1,2 @@
+# Runtime dependencies are provided by ComfyUI (torch, numpy, Pillow, av).
+# This package intentionally has no extra pip dependencies.

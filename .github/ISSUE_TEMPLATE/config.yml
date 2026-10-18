@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Model license and weights
+    url: https://huggingface.co/MiniMaxAI/MiniMax-H3
+    about: This project does not distribute weights; see the official model license.
+  - name: h3.c upstream
+    url: https://github.com/antirez/h3.c
+    about: Report native CLI/build issues upstream.

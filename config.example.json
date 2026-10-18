@@ -1,0 +1,10 @@
+{
+  "h3_dir": "/absolute/path/to/h3.c",
+  "model_dir": "/absolute/path/to/MiniMax-H3",
+  "h3_binary": "/absolute/path/to/h3.c/h3",
+  "ffmpeg": "/opt/homebrew/bin/ffmpeg",
+  "ffprobe": "/opt/homebrew/bin/ffprobe",
+  "serialize": true,
+  "keep_temp": false,
+  "auto_detect": false
+}

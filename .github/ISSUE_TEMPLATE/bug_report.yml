@@ -1,0 +1,73 @@
+name: Bug report
+description: Report a reproducible problem with the ComfyUI MiniMax H3 nodes
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is an unofficial project. Model weights are not included and are
+        governed by the MiniMax H3 Community License. Do not upload weights or
+        private media. Redact prompts and paths from logs.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the expected and actual behavior.
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node version / commit
+      placeholder: "0.1.0 or git SHA"
+    validations:
+      required: true
+  - type: input
+    id: comfyui_version
+    attributes:
+      label: ComfyUI version
+      placeholder: "0.41.2"
+    validations:
+      required: true
+  - type: input
+    id: h3_commit
+    attributes:
+      label: h3.c commit
+      placeholder: "8974cc0"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: macOS / Apple Silicon model / unified memory
+      placeholder: "macOS 26.x, M5 Max, 128GB"
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: Run `python scripts/doctor.py --mode ref2va` and paste the output.
+      render: shell
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant ComfyUI / h3 logs
+      description: Redact prompts, user paths, and media filenames.
+      render: shell
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Minimal workflow or API payload
+      description: A minimal JSON workflow that reproduces the issue, if possible.
+      render: json
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I did not include model weights or private media.
+          required: true
+        - label: I read the model license / territorial restrictions.
+          required: true

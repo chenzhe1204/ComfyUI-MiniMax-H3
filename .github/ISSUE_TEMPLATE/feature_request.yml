@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest a node, parameter, or compatibility improvement
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the workflow or limitation, not just the requested implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Inputs, outputs, defaults, and how it maps to h3.c CLI flags if known.
+    validations:
+      required: true
+  - type: input
+    id: h3_flag
+    attributes:
+      label: Related h3.c CLI flag (if any)
+      placeholder: "--ref-video / --ref-video-audio"
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This does not require bundling model weights or the h3.c binary.
+          required: true

@@ -1,0 +1,53 @@
+[project]
+name = "comfyui-minimax-h3"
+version = "0.1.0"
+description = "Unofficial ComfyUI nodes for MiniMax H3 on Apple Silicon"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "chenzhe1204" }]
+maintainers = [{ name = "chenzhe1204" }]
+keywords = ["comfyui", "minimax", "h3", "apple-silicon", "metal", "video-generation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: GPU :: Apple Metal",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Video :: Non-Linear Editor",
+]
+# ComfyUI provides torch, numpy, Pillow, av, and the comfy_* modules.  Do not
+# pin them here: doing so would fight with the user's ComfyUI environment.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.urls]
+Repository = "https://github.com/chenzhe1204/ComfyUI-MiniMax-H3"
+Issues = "https://github.com/chenzhe1204/ComfyUI-MiniMax-H3/issues"
+Changelog = "https://github.com/chenzhe1204/ComfyUI-MiniMax-H3/blob/main/CHANGELOG.md"
+
+# Used by the ComfyUI Registry (https://comfyregistry.org).
+[tool.comfy]
+PublisherId = "chenzhe1204"
+DisplayName = "ComfyUI MiniMax H3"
+Icon = "https://github.com/chenzhe1204.png"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".tools", "third_party", ".git"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

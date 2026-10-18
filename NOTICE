@@ -1,0 +1,34 @@
+ComfyUI MiniMax H3
+Copyright (C) 2026 chenzhe1204 and contributors
+
+This repository is an unofficial ComfyUI adapter. It is not affiliated with,
+endorsed by, or sponsored by MiniMax, ComfyUI, or the h3.c authors.
+
+This repository does NOT contain MiniMax H3 model weights. Model weights are
+downloaded separately by the user and are governed by the MiniMax H3 Community
+License Agreement:
+
+  MiniMax H3 is licensed under the MiniMax H3 Community License Agreement,
+  Copyright © 2026 MiniMax. All Rights Reserved.
+
+The MiniMax H3 Community License Agreement excludes the European Union, the
+United Kingdom, the Republic of Korea, and the United States of America from its
+Applicable Territory. Review the official license before downloading or using
+the model:
+
+  https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/LICENSE
+
+This project calls the MIT-licensed h3.c project by Salvatore Sanfilippo as an
+external command-line program. It does not include h3.c source code or binaries.
+If you build or redistribute h3.c, retain its MIT license and its third-party
+notices, including the BSD-3-Clause notice for the ccv Metal FlashAttention
+portions.
+
+The MiniMax H3 encoder uses Qwen3-VL-32B, which is licensed under Apache 2.0:
+https://github.com/QwenLM/Qwen3-VL/blob/main/LICENSE
+
+ComfyUI itself is licensed under GPL-3.0:
+https://github.com/comfyanonymous/ComfyUI/blob/master/LICENSE
+
+FFmpeg/FFprobe are external system dependencies and are not bundled. Their
+licensing depends on how they were built and distributed.
