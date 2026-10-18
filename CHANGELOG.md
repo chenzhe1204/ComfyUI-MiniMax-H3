@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Configuration files are now resolved in this order: `H3_CONFIG`, the
+  package-local `config.json`, `<ComfyUI>/user/default/comfyui-minimax-h3.json`,
+  and finally `~/.config/comfyui-minimax-h3/config.json` outside ComfyUI. Only
+  the first existing file is read; files are not merged.
+
 ## [0.1.0] - 2026-10-18
 
 ### Added

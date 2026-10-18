@@ -3,3 +3,4 @@
 .idea/
 tests/
 .gitignore
+config.json

@@ -9,9 +9,11 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import config as config_module  # noqa: E402
 from config import ConfigError, resolve_config  # noqa: E402
 
 _KEYS = (
@@ -116,6 +118,77 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(config.config_path, self.config_path)
         self.assertIsNone(config.model_dir)
         self.assertIsNone(config.h3_binary)
+
+    def _write_json(self, path: Path, data: dict) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(data), encoding="utf-8")
+
+    def test_package_config_wins_over_comfyui_user_config(self):
+        os.environ.pop("H3_CONFIG", None)
+        package_dir = self.root / "package"
+        package_config = package_dir / "config.json"
+        user_config = self.root / "comfyui-user-default.json"
+        self._write_json(package_config, {"h3_dir": str(self.root / "pkg-h3")})
+        self._write_json(user_config, {"h3_dir": str(self.root / "user-h3")})
+
+        with (
+            patch.object(config_module, "package_config_path", return_value=package_config),
+            patch.object(config_module, "_comfyui_config_path", return_value=user_config),
+        ):
+            config = resolve_config()
+
+        self.assertEqual(config.config_path, package_config)
+        self.assertEqual(config.model_dir, (self.root / "pkg-h3" / "model").resolve())
+        self.assertEqual(config.config_candidates, (package_config, user_config))
+
+    def test_user_config_used_when_package_config_is_missing(self):
+        os.environ.pop("H3_CONFIG", None)
+        package_config = self.root / "package" / "config.json"
+        user_config = self.root / "comfyui-user-default.json"
+        self._write_json(user_config, {"h3_dir": str(self.root / "user-h3")})
+
+        with (
+            patch.object(config_module, "package_config_path", return_value=package_config),
+            patch.object(config_module, "_comfyui_config_path", return_value=user_config),
+        ):
+            config = resolve_config()
+
+        self.assertEqual(config.config_path, user_config)
+        self.assertEqual(config.model_dir, (self.root / "user-h3" / "model").resolve())
+
+    def test_h3_config_overrides_package_and_user_configs(self):
+        explicit = self.root / "explicit.json"
+        package_config = self.root / "package" / "config.json"
+        user_config = self.root / "comfyui-user-default.json"
+        self._write_json(explicit, {"h3_dir": str(self.root / "explicit-h3")})
+        self._write_json(package_config, {"h3_dir": str(self.root / "pkg-h3")})
+        self._write_json(user_config, {"h3_dir": str(self.root / "user-h3")})
+        os.environ["H3_CONFIG"] = str(explicit)
+
+        with (
+            patch.object(config_module, "package_config_path", return_value=package_config),
+            patch.object(config_module, "_comfyui_config_path", return_value=user_config),
+        ):
+            config = resolve_config()
+
+        self.assertEqual(config.config_path, explicit)
+        self.assertEqual(config.config_candidates, (explicit,))
+        self.assertEqual(config.model_dir, (self.root / "explicit-h3" / "model").resolve())
+
+    def test_environment_overrides_package_config_value(self):
+        os.environ.pop("H3_CONFIG", None)
+        package_config = self.root / "package" / "config.json"
+        self._write_json(package_config, {"h3_dir": str(self.root / "pkg-h3")})
+        os.environ["H3_MODEL_DIR"] = str(self.root / "env-model")
+
+        with (
+            patch.object(config_module, "package_config_path", return_value=package_config),
+            patch.object(config_module, "_comfyui_config_path", return_value=None),
+        ):
+            config = resolve_config()
+
+        self.assertEqual(config.model_dir, (self.root / "env-model").resolve())
+        self.assertEqual(config.sources["model_dir"], "env H3_MODEL_DIR")
 
 
 if __name__ == "__main__":

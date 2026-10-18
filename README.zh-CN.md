@@ -89,7 +89,19 @@ FL2VA 节点需要 `FL2VA/transformer`；Ref2VA 节点还需要 `Ref2VA/transfor
 
 ### 4. 配置路径
 
-环境变量优先级最高：
+配置文件按以下顺序解析。**第一个存在的文件生效，不合并。**
+
+| 优先级 | 来源 | 说明 |
+|---:|---|---|
+| 1 | `H3_CONFIG` | 显式 JSON 路径；文件不存在时不会回退。 |
+| 2 | `<node>/config.json` | 便携/开发覆盖。已被 Git 和 Registry 包忽略，但节点更新可能覆盖它。 |
+| 3 | `<ComfyUI>/user/default/comfyui-minimax-h3.json` | 正常安装推荐位置；遵循 `--user-directory`。 |
+| 4 | `~/.config/comfyui-minimax-h3/config.json` | 仅在 ComfyUI 的 `folder_paths` 不可用时使用（例如在 ComfyUI 外跑 `scripts/doctor.py`）。 |
+
+`<node>` 指已安装的节点目录
+（`ComfyUI/custom_nodes/comfyui-minimax-h3`）。
+
+环境变量会覆盖所选文件里的对应值：
 
 | 变量 | 作用 |
 |---|---|
@@ -97,12 +109,13 @@ FL2VA 节点需要 `FL2VA/transformer`；Ref2VA 节点还需要 `Ref2VA/transfor
 | `H3_MODEL_DIR` | 显式模型目录。 |
 | `H3_BIN` | 显式 `h3` 可执行文件。 |
 | `H3_FFMPEG` / `H3_FFPROBE` | 显式 FFmpeg 工具。 |
-| `H3_CONFIG` | 显式 JSON 配置文件。 |
+| `H3_CONFIG` | 显式 JSON 配置文件（文件优先级最高）。 |
 | `H3_SERIALIZE` | `1`（默认）串行执行；`0` 关闭执行锁。 |
 | `H3_KEEP_TEMP` | `1` 保留临时图片/音频，便于排查。 |
 | `H3_AUTO_DETECT` | `0` 关闭对 `third_party/h3.c` 的自动探测。 |
 
-或创建 `ComfyUI/user/default/comfyui-minimax-h3.json`：
+正常安装推荐创建
+`ComfyUI/user/default/comfyui-minimax-h3.json`：
 
 ```json
 {
@@ -111,13 +124,17 @@ FL2VA 节点需要 `FL2VA/transformer`；Ref2VA 节点还需要 `Ref2VA/transfor
 }
 ```
 
+便携/开发安装可以创建 `<node>/config.json`，内容相同。配置会跟随 checkout，
+但节点更新可能覆盖它；删除后即回退到 ComfyUI user 配置。
+
 只写 `h3_dir` 时默认模型在 `<h3_dir>/model`；如果权重下载在别处，请设置
 `model_dir`。
 
 完整配置也可设置 `model_dir`、`h3_binary`、`ffmpeg`、`ffprobe`、`serialize`、
 `keep_temp`、`auto_detect`，示例见 [config.example.json](config.example.json)。
-在 ComfyUI 外运行时，默认配置路径是
-`~/.config/comfyui-minimax-h3/config.json`。
+
+`~/.config/comfyui-minimax-h3/config.json` **不会**被正常 ComfyUI 进程读取；
+它只是 ComfyUI 的 `folder_paths` 无法导入时的独立工具兜底路径。
 
 ### 5. 重启并自检
 

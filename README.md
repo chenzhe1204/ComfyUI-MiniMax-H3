@@ -100,7 +100,20 @@ The FL2VA node needs `FL2VA/transformer`; the Ref2VA node additionally needs
 
 ### 4. Configure paths
 
-Environment variables (highest priority):
+Configuration files are resolved in this order. **The first existing file wins;
+files are not merged.**
+
+| Priority | Source | Notes |
+|---:|---|---|
+| 1 | `H3_CONFIG` | Explicit JSON path; no fallback if it does not exist. |
+| 2 | `<node>/config.json` | Portable/development override. Ignored by Git and the Registry package, but a node update may replace it. |
+| 3 | `<ComfyUI>/user/default/comfyui-minimax-h3.json` | Recommended for normal installs. Follows `--user-directory`. |
+| 4 | `~/.config/comfyui-minimax-h3/config.json` | Only when ComfyUI's `folder_paths` is unavailable (for example `scripts/doctor.py` outside ComfyUI). |
+
+`<node>` is the installed node directory
+(`ComfyUI/custom_nodes/comfyui-minimax-h3`).
+
+Individual environment variables override values from the selected file:
 
 | Variable | Purpose |
 |---|---|
@@ -108,12 +121,13 @@ Environment variables (highest priority):
 | `H3_MODEL_DIR` | Explicit model directory. |
 | `H3_BIN` | Explicit `h3` executable. |
 | `H3_FFMPEG` / `H3_FFPROBE` | Explicit FFmpeg tools (h3.c also reads these). |
-| `H3_CONFIG` | Explicit JSON config path. |
+| `H3_CONFIG` | Explicit JSON config path (highest file priority). |
 | `H3_SERIALIZE` | `1` (default) serializes generations; `0` disables the lock. |
 | `H3_KEEP_TEMP` | `1` keeps the temporary images/audio for debugging. |
 | `H3_AUTO_DETECT` | `0` disables development auto-detection of `third_party/h3.c`. |
 
-Or create `ComfyUI/user/default/comfyui-minimax-h3.json`:
+Recommended normal install — create
+`ComfyUI/user/default/comfyui-minimax-h3.json`:
 
 ```json
 {
@@ -122,6 +136,10 @@ Or create `ComfyUI/user/default/comfyui-minimax-h3.json`:
 }
 ```
 
+Portable/development install — create `<node>/config.json` with the same
+contents. This keeps the configuration with the checkout but may be overwritten
+by a node update; delete it to fall back to the ComfyUI user config.
+
 `h3_dir` alone assumes the weights live at `<h3_dir>/model`; set `model_dir`
 when they were downloaded elsewhere.
 
@@ -129,8 +147,9 @@ A full config file can also set `model_dir`, `h3_binary`, `ffmpeg`, `ffprobe`,
 `serialize`, `keep_temp`, and `auto_detect`; see
 [config.example.json](config.example.json).
 
-Outside ComfyUI, the fallback config path is
-`~/.config/comfyui-minimax-h3/config.json`.
+`~/.config/comfyui-minimax-h3/config.json` is **not** used by a normal ComfyUI
+process; it is only the standalone-tool fallback when ComfyUI's `folder_paths`
+module cannot be imported.
 
 ### 5. Restart ComfyUI and run the doctor
 

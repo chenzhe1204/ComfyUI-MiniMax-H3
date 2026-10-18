@@ -1,14 +1,24 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Configuration discovery for the MiniMax H3 ComfyUI nodes.
 
-Precedence, highest first:
+Configuration file precedence, highest first:
 
-1. Environment variables: ``H3_DIR``, ``H3_MODEL_DIR``, ``H3_BIN``,
-   ``H3_FFMPEG``, ``H3_FFPROBE``, ``H3_SERIALIZE``, ``H3_KEEP_TEMP``,
-   ``H3_CONFIG``.
-2. A JSON configuration file (see :func:`default_config_path`).
-3. Development auto-detection of ``third_party/h3.c`` or a sibling
-   ``../h3.c`` checkout.
+1. ``H3_CONFIG``: explicit JSON file (no fallback).
+2. ``<this package>/config.json``: portable/development override.  This file
+   can be replaced by a node update, so it is meant for self-contained
+   checkouts rather than normal installs.
+3. ``<ComfyUI>/user/default/comfyui-minimax-h3.json``: the recommended location
+   for normal ComfyUI installs.  It follows ``folder_paths.get_user_directory()``
+   and therefore respects a custom ``--user-directory``.
+4. ``~/.config/comfyui-minimax-h3/config.json``: only used when ComfyUI's
+   ``folder_paths`` module is unavailable (for example when running
+   ``scripts/doctor.py`` outside ComfyUI).
+
+The first **existing** file wins; files are not merged.  Individual environment
+variables (``H3_DIR``, ``H3_MODEL_DIR``, ``H3_BIN``, ``H3_FFMPEG``,
+``H3_FFPROBE``, ``H3_SERIALIZE``, ``H3_KEEP_TEMP``) override values from the
+selected file.  Development auto-detection of ``third_party/h3.c`` or a sibling
+``../h3.c`` is the last resort.
 
 The module deliberately avoids hard dependencies on ComfyUI so it can be
 tested and used by ``scripts/doctor.py`` outside a ComfyUI process.
@@ -41,6 +51,7 @@ class H3Config:
     serialize: bool
     keep_temp: bool
     sources: dict[str, str] = field(default_factory=dict, compare=False)
+    config_candidates: tuple[Path, ...] = field(default_factory=tuple, compare=False)
 
 
 def _comfyui_config_path() -> Path | None:
@@ -52,17 +63,55 @@ def _comfyui_config_path() -> Path | None:
         return None
 
 
-def default_config_path() -> Path:
-    """Return the configuration file path used when ``H3_CONFIG`` is unset."""
+def package_config_path() -> Path:
+    """Return the optional config file stored next to the node package."""
 
-    override = os.environ.get("H3_CONFIG", "").strip()
+    return Path(__file__).resolve().parent / "config.json"
+
+
+def home_config_path() -> Path:
+    """Return the standalone-tool fallback config path."""
+
+    return Path.home() / ".config" / "comfyui-minimax-h3" / "config.json"
+
+
+def candidate_config_paths() -> list[Path]:
+    """Return config candidates in priority order.
+
+    The first existing file wins; callers must not merge them.
+    """
+
+    override = _env("H3_CONFIG")
     if override:
-        return Path(override).expanduser()
+        return [Path(override).expanduser()]
 
+    candidates = [package_config_path()]
     comfy_path = _comfyui_config_path()
     if comfy_path is not None:
-        return comfy_path
-    return Path.home() / ".config" / "comfyui-minimax-h3" / "config.json"
+        candidates.append(comfy_path)
+    else:
+        candidates.append(home_config_path())
+
+    # Keep the order while dropping duplicates (for example if a symlinked
+    # package happens to resolve to the ComfyUI user directory).
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = str(candidate)
+        if key not in seen:
+            seen.add(key)
+            unique.append(candidate)
+    return unique
+
+
+def default_config_path() -> Path:
+    """Return the selected config file (first existing candidate)."""
+
+    candidates = candidate_config_paths()
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return candidates[0]
 
 
 def _read_config(path: Path) -> dict[str, Any]:
@@ -130,7 +179,12 @@ def _auto_detect_pairs() -> list[Path]:
 def resolve_config(config_path: Path | None = None) -> H3Config:
     """Resolve configuration from env vars, JSON, and development defaults."""
 
-    path = Path(config_path).expanduser() if config_path is not None else default_config_path()
+    if config_path is not None:
+        candidates = [Path(config_path).expanduser()]
+        path = candidates[0]
+    else:
+        candidates = candidate_config_paths()
+        path = next((candidate for candidate in candidates if candidate.is_file()), candidates[0])
     file_data = _read_config(path)
     file_base = path.parent
     env_base = Path.cwd()
@@ -252,13 +306,21 @@ def resolve_config(config_path: Path | None = None) -> H3Config:
         serialize=serialize,
         keep_temp=keep_temp,
         sources=sources,
+        config_candidates=tuple(candidates),
     )
 
 
 def describe_config(config: H3Config) -> list[str]:
     """Human-readable configuration lines for logs and the doctor script."""
 
-    lines = [f"config file: {config.config_path}"]
+    found = config.config_path.is_file()
+    lines = [f"config file: {config.config_path}" + ("" if found else " (not found)")]
+    candidates = config.config_candidates or (config.config_path,)
+    if len(candidates) > 1:
+        lines.append("config candidates (first existing wins):")
+        for candidate in candidates:
+            mark = "  <- selected" if candidate == config.config_path else ""
+            lines.append(f"  - {candidate}{mark}")
     for key in ("h3_dir", "model_dir", "h3_binary", "ffmpeg", "ffprobe"):
         value = getattr(config, key)
         source = config.sources.get(key, "default")
